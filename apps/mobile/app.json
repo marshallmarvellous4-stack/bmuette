@@ -1,0 +1,62 @@
+{
+  "expo": {
+    "name": "BMUETTE",
+    "slug": "bmuette",
+    "scheme": "bmuette",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0B0B0D",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0B0B0D"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.bmuette.app"
+    },
+    "android": {
+      "package": "com.bmuette.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-foreground.png",
+        "monochromeImage": "./assets/adaptive-monochrome.png",
+        "backgroundColor": "#0B0B0D"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-video",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "BMUETTE needs your photos so you can post and sell."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#0B0B0D"
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "BMUETTE uses the microphone to record voice notes and sounds."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "apiUrl": "http://localhost:3000"
+    }
+  }
+}

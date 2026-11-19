@@ -1,0 +1,56 @@
+[
+  {
+    "file": "golden-hour.mp3",
+    "title": "Golden Hour",
+    "artist": "BMUETTE Originals",
+    "mood": "Warm",
+    "bpm": 92,
+    "durationMs": 10434,
+    "color": "#E7B66B"
+  },
+  {
+    "file": "lagos-nights.mp3",
+    "title": "Lagos Nights",
+    "artist": "BMUETTE Originals",
+    "mood": "Groove",
+    "bpm": 102,
+    "durationMs": 9411,
+    "color": "#7BC8A4"
+  },
+  {
+    "file": "soft-launch.mp3",
+    "title": "Soft Launch",
+    "artist": "BMUETTE Originals",
+    "mood": "Calm",
+    "bpm": 80,
+    "durationMs": 12000,
+    "color": "#9DB8E6"
+  },
+  {
+    "file": "street-pulse.mp3",
+    "title": "Street Pulse",
+    "artist": "BMUETTE Originals",
+    "mood": "Energy",
+    "bpm": 118,
+    "durationMs": 8135,
+    "color": "#E6735C"
+  },
+  {
+    "file": "sunday-slow.mp3",
+    "title": "Sunday Slow",
+    "artist": "BMUETTE Originals",
+    "mood": "Chill",
+    "bpm": 76,
+    "durationMs": 12631,
+    "color": "#C7A6E8"
+  },
+  {
+    "file": "neon-drive.mp3",
+    "title": "Neon Drive",
+    "artist": "BMUETTE Originals",
+    "mood": "Night",
+    "bpm": 110,
+    "durationMs": 8727,
+    "color": "#5CC6E6"
+  }
+]

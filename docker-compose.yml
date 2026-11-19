@@ -1,0 +1,54 @@
+# Local development stack:  docker compose up --build
+# API on http://localhost:3000   (health: /health)
+# Add the AI service (visual + meaning search):  docker compose --profile ai up --build
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: bmuette
+      POSTGRES_PASSWORD: bmuette
+      POSTGRES_DB: bmuette
+    volumes: [dbdata:/var/lib/postgresql/data]
+    ports: ["5432:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bmuette"]
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+
+  api:
+    build: ./apps/api
+    depends_on:
+      db: { condition: service_healthy }
+      redis: { condition: service_started }
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_URL: postgres://bmuette:bmuette@db:5432/bmuette
+      REDIS_URL: redis://redis:6379
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change-me-to-a-long-random-string-at-least-32-chars}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:3000}
+      STORAGE_DRIVER: local
+      VIDEO_DRIVER: local
+      AI_SERVICE_URL: ${AI_SERVICE_URL:-}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      FLW_SECRET_KEY: ${FLW_SECRET_KEY:-}
+      FLW_WEBHOOK_HASH: ${FLW_WEBHOOK_HASH:-}
+    volumes: [uploads:/app/.uploads]
+    ports: ["3000:3000"]
+
+  ai:
+    profiles: ["ai"]
+    build: ./apps/ai
+    environment:
+      # Development only: lets the AI service download images from the API container.
+      AI_ALLOW_PRIVATE_URLS: "true"
+    ports: ["8000:8000"]
+
+volumes:
+  dbdata:
+  uploads:

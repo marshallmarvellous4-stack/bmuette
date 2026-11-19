@@ -1,0 +1,51 @@
+{
+  "name": "@bmuette/api",
+  "version": "0.1.0",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/main.js",
+    "start:dev": "nest start --watch",
+    "migrate": "node dist/db/migrate.js",
+    "smoke": "tsx test/smoke.ts",
+    "make-admin": "node dist/db/make-admin.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1164.0",
+    "@aws-sdk/s3-request-presigner": "^3.1164.0",
+    "@nestjs/common": "^12.4.2",
+    "@nestjs/core": "^12.4.2",
+    "@nestjs/jwt": "^12.0.4",
+    "@nestjs/platform-express": "^12.4.2",
+    "@nestjs/throttler": "^6.7.1",
+    "argon2": "^0.45.2",
+    "express": "^5.3.0",
+    "helmet": "^8.3.0",
+    "ioredis": "^6.0.0",
+    "multer": "^2.5.0",
+    "pg": "^8.23.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "stripe": "^23.1.0",
+    "ws": "^8.22.2",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^12.0.12",
+    "@nestjs/testing": "^12.4.2",
+    "@types/express": "^5.0.6",
+    "@types/multer": "^2.3.0",
+    "@types/node": "^22.20.5",
+    "@types/pg": "^8.23.1",
+    "@types/ws": "^8.18.2",
+    "tsx": "^4.23.15",
+    "typescript": "~5.9"
+  },
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "license": "ISC"
+}
