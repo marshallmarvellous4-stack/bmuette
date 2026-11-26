@@ -12,6 +12,16 @@ function resolveBase(): string {
 }
 export const API_URL = resolveBase();
 
+// Media links saved while the server believed it lived at "localhost" cannot be opened from a phone.
+// Point them at the address the app actually uses, so videos and pictures load without touching the database.
+const LOCAL_ORIGIN = /^https?:\/\/(localhost|127\.0\.0\.1|10\.0\.2\.2|0\.0\.0\.0)(:\d+)?(?=\/)/;
+function fixUrls<T>(v: T): T {
+  if (typeof v === 'string') return (LOCAL_ORIGIN.test(v) ? v.replace(LOCAL_ORIGIN, API_URL) : v) as T;
+  if (Array.isArray(v)) { for (let i = 0; i < v.length; i++) v[i] = fixUrls(v[i]); return v; }
+  if (v && typeof v === 'object') { const o = v as Record<string, unknown>; for (const k of Object.keys(o)) o[k] = fixUrls(o[k]); }
+  return v;
+}
+
 export class ApiError extends Error {
   constructor(public status: number, message: string, public issues?: { path: string; message: string }[], public code?: string) {
     super(message);
@@ -99,5 +109,5 @@ export async function api<T>(path: string, o: Opts = {}): Promise<T> {
     const issues = json?.issues as { path: string; message: string }[] | undefined;
     throw new ApiError(res.status, issues?.[0]?.message || msg || `Something went wrong (${res.status})`, issues, typeof json?.code === 'string' ? json.code : typeof json?.message?.code === 'string' ? json.message.code : undefined);
   }
-  return json as T;
+  return (API_URL.includes('localhost') ? json : fixUrls(json)) as T;
 }
