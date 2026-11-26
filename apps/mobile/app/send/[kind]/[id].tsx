@@ -1,5 +1,5 @@
 import React from 'react';
-import { FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
+import { FlatList, KeyboardAvoidingView, Pressable, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -11,12 +11,14 @@ import { haptics } from '@/theme/haptics';
 import { Icon } from '@/theme/icons';
 import { colors, radius } from '@/theme/tokens';
 import { sheetHeight } from '@/lib/sheetHeight';
+import { useKeyboardHeight } from '@/lib/useKeyboard';
 
 // "Send to…" sheet for a post or a product. Tap a person and it goes straight into your chat with them.
 export default function SendTo() {
   const { kind, id } = useLocalSearchParams<{ kind: 'post' | 'product'; id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const kb = useKeyboardHeight();
   const { height: winH } = useWindowDimensions();
   const qc = useQueryClient();
   const me = useAuth((s) => s.user?.id);
@@ -48,8 +50,8 @@ export default function SendTo() {
   return (
     <View style={[StyleSheet.absoluteFill, { justifyContent: 'flex-end' }]}>
       <Pressable style={{ flex: 1 }} onPress={() => router.back()} accessibilityLabel="Close" />
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <View style={{ height: sheetHeight(winH, insets.top, 0.7), backgroundColor: colors.card, borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl, paddingTop: 10 }}>
+      <KeyboardAvoidingView behavior="padding">
+        <View style={{ height: Math.min(sheetHeight(winH, insets.top, 0.7), winH - kb - insets.top - 24), backgroundColor: colors.card, borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl, paddingTop: 10 }}>
           <View style={{ alignSelf: 'center', width: 40, height: 5, borderRadius: 3, backgroundColor: 'rgba(17,18,20,0.15)', marginBottom: 12 }} />
           <Text variant="bodyStrong" tone="card" style={{ textAlign: 'center', marginBottom: 12 }}>Send to</Text>
           <View style={{ marginHorizontal: 16, height: 44, borderRadius: 22, backgroundColor: colors.cardSoft, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14 }}>

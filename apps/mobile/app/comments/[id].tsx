@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
+import { FlatList, KeyboardAvoidingView, Pressable, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Avatar, Press, Text } from '@/components/ui';
@@ -14,6 +14,7 @@ import { haptics } from '@/theme/haptics';
 import { Icon } from '@/theme/icons';
 import { colors, radius } from '@/theme/tokens';
 import { sheetHeight } from '@/lib/sheetHeight';
+import { useKeyboardHeight } from '@/lib/useKeyboard';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GiftArt } from '@/components/gifts/GiftArt';
 import { GOLD, metaFor } from '@/components/gifts/giftMeta';
@@ -50,6 +51,7 @@ export default function Comments() {
   const { id, u, n } = useLocalSearchParams<{ id: string; u?: string; n?: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const kb = useKeyboardHeight();
   const { height: winH } = useWindowDimensions();
   const { data, isLoading } = useComments(id);
   const add = useAddComment(id);
@@ -78,8 +80,8 @@ export default function Comments() {
   return (
     <View style={[StyleSheet.absoluteFill, { justifyContent: 'flex-end' }]}>
       <Pressable style={{ flex: 1 }} onPress={() => router.back()} accessibilityLabel="Close comments" />
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <View style={{ height: sheetHeight(winH, insets.top, 0.66), backgroundColor: colors.card, borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl, paddingTop: 10 }}>
+      <KeyboardAvoidingView behavior="padding">
+        <View style={{ height: Math.min(sheetHeight(winH, insets.top, 0.66), winH - kb - insets.top - 24), backgroundColor: colors.card, borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl, paddingTop: 10 }}>
           <View style={{ alignSelf: 'center', width: 40, height: 5, borderRadius: 3, backgroundColor: 'rgba(17,18,20,0.15)', marginBottom: 12 }} />
           <Text variant="bodyStrong" tone="card" style={{ textAlign: 'center', marginBottom: 10 }}>{items.length} {items.length === 1 ? 'comment' : 'comments'}</Text>
           {top.data && top.data.totalCoins > 0 ? (
@@ -103,7 +105,7 @@ export default function Comments() {
               </Pressable>
             )}
           />
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, paddingBottom: insets.bottom + 12, borderTopWidth: 1, borderColor: colors.cardLine }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, paddingBottom: kb ? 12 : insets.bottom + 12, borderTopWidth: 1, borderColor: colors.cardLine }}>
             <Press haptic="none" onPress={openGift} accessibilityRole="button" accessibilityLabel="Send a gift" style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="gift" size={21} color={GOLD.mid} active />
             </Press>

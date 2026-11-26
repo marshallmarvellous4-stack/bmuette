@@ -1,5 +1,5 @@
 import React from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, View, type StyleProp, type ViewStyle } from 'react-native';
+import { KeyboardAvoidingView, ScrollView, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconButton, Text } from './ui';
@@ -22,7 +22,7 @@ export function Page({ title, subtitle, children, right, onBack, scroll = true, 
   );
   if (!scroll) return <View style={[{ flex: 1, backgroundColor: colors.ink, padding: 20, paddingTop: insets.top + 12, gap: 18 }, contentStyle]}>{head}{children}</View>;
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, backgroundColor: colors.ink }}>
+    <KeyboardAvoidingView behavior="padding" style={{ flex: 1, backgroundColor: colors.ink }}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={[{ padding: 20, paddingTop: insets.top + 12, paddingBottom: insets.bottom + 40, gap: 22 }]}>
         {head}
         <View style={[{ gap: 22 }, contentStyle]}>{children}</View>

@@ -123,7 +123,7 @@ export default function Thread() {
   const open = (m: ChatMessage) => { if (m.refId) router.push(m.kind === 'product' ? `/product/${m.refId}` : `/post/${m.refId}`); };
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, backgroundColor: colors.ink }}>
+    <KeyboardAvoidingView behavior="padding" style={{ flex: 1, backgroundColor: colors.ink }}>
       <View style={{ paddingTop: insets.top + 8, paddingBottom: 10, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', gap: 10, borderBottomWidth: 1, borderColor: colors.line }}>
         <IconButton icon="back" label="Back" tone="ink" onPress={() => router.back()} />
         <Press haptic="tap" scaleTo={0.97} onPress={() => peer && router.push(`/profile/${peer.username}`)} accessibilityRole="button" accessibilityLabel={peer ? `Open ${peer.displayName}'s profile` : 'Profile'} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
