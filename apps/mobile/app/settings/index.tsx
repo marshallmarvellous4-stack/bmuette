@@ -22,6 +22,10 @@ export default function Settings() {
         {!user.emailVerified ? <Row icon="check" label="Verify your email" value="Needed to open a shop or check out" onPress={() => router.push('/verify-email')} /> : null}
         <Row icon="lock" label="Change password" onPress={() => router.push('/settings/password')} last />
       </Section>
+      <Section title="Coins & earnings">
+        <Row icon="coin" label="Wallet" value="Buy coins to send gifts" onPress={() => router.push('/wallet')} />
+        <Row icon="gift" label="Gift earnings" value="Gifts you received and payouts" onPress={() => router.push('/earnings')} last />
+      </Section>
       <Section title="App">
         <Row icon="bell" label="Notifications" value="Choose what can buzz your phone" onPress={() => router.push('/settings/notifications')} />
         <ToggleRow icon="play" label="Haptic feedback" hint="Small vibrations as you tap" value={haptic.enabled} onChange={haptic.setEnabled} last />

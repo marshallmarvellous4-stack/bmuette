@@ -20,13 +20,15 @@ import { useSaveSheet } from '@/state/saveSheet';
 import type { Cta, Post } from '@/api/types';
 import { compact } from '@/lib/money';
 import { usePlayer } from '@/state/player';
+import { useGiftUi } from '@/state/gifts';
+import { GOLD } from './gifts/giftMeta';
 import { Icon } from '@/theme/icons';
 import { haptics } from '@/theme/haptics';
 import { colors, TAB_BAR } from '@/theme/tokens';
 
 const CTA_LABEL: Record<Cta['kind'], string> = { buy: 'Buy now', book: 'Book now', enroll: 'Enrol', join_event: 'Get tickets', order_food: 'Order now', expert: 'Talk to an expert' };
 
-function Rail({ icon, label, active, onPress, activeColor }: { icon: 'heart' | 'comment' | 'download' | 'share' | 'bookmark'; label?: string; active?: boolean; onPress: () => void; activeColor?: string }) {
+function Rail({ icon, label, active, onPress, activeColor }: { icon: 'heart' | 'comment' | 'download' | 'share' | 'bookmark' | 'gift'; label?: string; active?: boolean; onPress: () => void; activeColor?: string }) {
   return (
     <View style={{ alignItems: 'center', gap: 5 }}>
       <Press haptic="none" scaleTo={0.82} onPress={onPress} accessibilityRole="button" accessibilityLabel={icon} style={styles.railBtn}>
@@ -39,6 +41,7 @@ function Rail({ icon, label, active, onPress, activeColor }: { icon: 'heart' | '
 
 export function PostPage({ post, active, height, bottomInset, topInset, startAt = 0, standalone = false }: { post: Post; active: boolean; height: number; bottomInset: number; topInset: number; startAt?: number; standalone?: boolean }) {
   const router = useRouter();
+  const meId = useAuth((x) => x.user?.id);
   const like = useLike();
   const follow = useFollow();
   const me = useAuth((s) => s.user?.id);
@@ -181,7 +184,8 @@ export function PostPage({ post, active, height, bottomInset, topInset, startAt 
           ) : null}
         </View>
         <Rail icon="heart" label={compact(post.counts.likes)} active={post.viewer.liked} activeColor="#FF4D6A" onPress={() => doLike(false)} />
-        <Rail icon="comment" label={compact(post.counts.comments)} onPress={() => { haptics.tap(); router.push(`/comments/${post.id}`); }} />
+        <Rail icon="comment" label={compact(post.counts.comments)} onPress={() => { haptics.tap(); router.push({ pathname: '/comments/[id]', params: { id: post.id, u: post.author.username, n: post.author.displayName } }); }} />
+        {post.author.id !== meId ? <Rail icon="gift" label={(post.counts.giftCoins ?? 0) > 0 ? compact(post.counts.giftCoins ?? 0) : 'Gift'} activeColor={GOLD.mid} active={(post.counts.giftCoins ?? 0) > 0} onPress={() => { haptics.tap(); useGiftUi.getState().openTray({ postId: post.id, creator: { username: post.author.username, displayName: post.author.displayName } }); }} /> : null}
         <Rail icon="bookmark" label={compact(post.counts.saves)} active={post.viewer.saved} activeColor="#FFD166" onPress={() => { haptics.tap(); useSaveSheet.getState().open({ type: 'post', id: post.id, saved: post.viewer.saved }); }} />
         {post.allowDownload ? <Rail icon="download" label="Save" onPress={onDownload} /> : null}
         <Rail icon="share" label="Send" onPress={() => { haptics.tap(); router.push(`/send/post/${post.id}`); }} />

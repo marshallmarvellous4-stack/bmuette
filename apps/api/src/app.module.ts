@@ -13,6 +13,7 @@ import { LegalModule } from './legal/legal.controller';
 import { MailModule } from './mail/mail.service';
 import { HubModule } from './chat/hub.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { GiftsModule } from './gifts/gifts.module';
 import { MarketModule } from './market/market.module';
 import { MediaModule } from './media/media.module';
 import { CommerceModule } from './commerce/commerce.module';
@@ -25,7 +26,7 @@ import { WebhooksModule } from './webhooks/webhooks.module';
 
 @Module({
   imports: [
-    EnvModule, DbModule, CacheModule, MailModule, LegalModule, HubModule, NotificationsModule, CommerceModule,
+    EnvModule, DbModule, CacheModule, MailModule, LegalModule, HubModule, NotificationsModule, GiftsModule, CommerceModule,
     // 120 requests a minute per IP across the API. Sign-in routes are stricter (see AuthController).
     ThrottlerModule.forRoot({ throttlers: [{ ttl: 60_000, limit: 120 }], skipIf: () => process.env.NODE_ENV === 'test' }),
     AuthModule, UsersModule, MediaModule, PostsModule, FeedModule, MarketModule, SearchModule, SoundsModule, OrdersModule, WebhooksModule, ChatModule, AdminModule,

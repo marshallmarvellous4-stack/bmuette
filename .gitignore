@@ -4,5 +4,3 @@ dist
 .uploads
 *.tsbuildinfo
 __pycache__
-.expo
-dist-*

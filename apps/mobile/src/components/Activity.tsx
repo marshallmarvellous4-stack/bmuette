@@ -12,7 +12,7 @@ import { colors } from '@/theme/tokens';
 
 const ICON: Record<Activity['type'], IconName> = {
   like: 'heart', comment: 'comment', reply: 'comment', follow: 'user', message: 'chat',
-  order_paid: 'bag', order_update: 'truck', sale: 'wallet', review: 'star', refund: 'refresh', payout: 'wallet', system: 'bell',
+  order_paid: 'bag', order_update: 'truck', sale: 'wallet', review: 'star', refund: 'refresh', payout: 'wallet', gift: 'gift', system: 'bell',
 };
 
 function Row({ a, onOpen }: { a: Activity; onOpen: () => void }) {

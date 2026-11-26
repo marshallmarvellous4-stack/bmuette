@@ -85,6 +85,9 @@ A post can carry an action (`buy`, `book`, `enroll`, `join_event`, `order_food`,
 - **Payouts:** a sale becomes available to the shop `PAYOUT_HOLD_DAYS` after payment (default 7). The shop adds bank details and asks for a payout;
   you see it in the admin dashboard under *Payouts & refunds*, send the bank transfer yourself, then press *Mark paid* with the transfer reference.
   Nothing moves money to shops automatically. Do this only after checking the marketplace/KYC rules in your country with an adviser.
+- **Virtual gifts:** people buy coins (packs in `apps/api/src/gifts/wallet.service.ts`, paid through Flutterwave or Stripe) and send gifts from the comment sheet or the gift icon on a post.
+  A gift shows in the comments as a premium row. The creator earns `CREATOR_COIN_MINOR` per coin (default ₦9; a coin costs ₦15 in the base pack, so BMUETTE keeps about 40%), held `GIFT_HOLD_DAYS` (14) and then paid out like shop money.
+  Gifts and coin purchases need a verified email and 18+. Coins are bought through the web payment page; if you ship on the App Store or Google Play, check their in-app purchase rules for digital goods before launch.
 - **Returns and refunds:** buyers can ask within `RETURN_WINDOW_DAYS` (default 14) of delivery, or a week after paying if nothing arrived.
   The shop (or an admin) approves; the refund goes back through Flutterwave or Stripe. If the provider fails, the request stays "approved" with the error
   and an admin can retry from the dashboard. Shipping fees are not modelled yet.

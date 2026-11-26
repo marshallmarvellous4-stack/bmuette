@@ -10,6 +10,7 @@ import { useAuth } from '@/state/auth';
 import { haptics } from '@/theme/haptics';
 import { Icon } from '@/theme/icons';
 import { colors, radius } from '@/theme/tokens';
+import { sheetHeight } from '@/lib/sheetHeight';
 
 // "Send to…" sheet for a post or a product. Tap a person and it goes straight into your chat with them.
 export default function SendTo() {
@@ -48,7 +49,7 @@ export default function SendTo() {
     <View style={[StyleSheet.absoluteFill, { justifyContent: 'flex-end' }]}>
       <Pressable style={{ flex: 1 }} onPress={() => router.back()} accessibilityLabel="Close" />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <View style={{ height: Math.min(560, Math.round(winH * 0.75)), backgroundColor: colors.card, borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl, paddingTop: 10 }}>
+        <View style={{ height: sheetHeight(winH, insets.top, 0.7), backgroundColor: colors.card, borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl, paddingTop: 10 }}>
           <View style={{ alignSelf: 'center', width: 40, height: 5, borderRadius: 3, backgroundColor: 'rgba(17,18,20,0.15)', marginBottom: 12 }} />
           <Text variant="bodyStrong" tone="card" style={{ textAlign: 'center', marginBottom: 12 }}>Send to</Text>
           <View style={{ marginHorizontal: 16, height: 44, borderRadius: 22, backgroundColor: colors.cardSoft, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14 }}>

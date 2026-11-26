@@ -11,6 +11,6 @@ import { PostsService } from './posts.service';
   imports: [MediaModule],
   controllers: [PostsController, CollectionsController],
   providers: [PostsService, InteractionsService, InterestService, EmbeddingService],
-  exports: [PostsService, InterestService, EmbeddingService],
+  exports: [PostsService, InterestService, EmbeddingService, InteractionsService],
 })
 export class PostsModule {}

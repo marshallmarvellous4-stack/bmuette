@@ -19,7 +19,7 @@ export function useFeed(kind: 'forYou' | 'following') {
 }
 
 type FeedCache = InfiniteData<Page<Post>>;
-function patchPostEverywhere(qc: ReturnType<typeof useQueryClient>, id: string, fn: (p: Post) => Post) {
+export function patchPostEverywhere(qc: ReturnType<typeof useQueryClient>, id: string, fn: (p: Post) => Post) {
   qc.setQueriesData<FeedCache>({ queryKey: ['feed'] }, (d) => d && { ...d, pages: d.pages.map((pg) => ({ ...pg, items: pg.items.map((p) => (p.id === id ? fn(p) : p)) })) });
   qc.setQueriesData<FeedCache>({ queryKey: ['userPosts'] }, (d) => d && { ...d, pages: d.pages.map((pg) => ({ ...pg, items: pg.items.map((p) => (p.id === id ? fn(p) : p)) })) });
 }

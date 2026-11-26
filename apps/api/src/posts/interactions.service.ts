@@ -98,8 +98,10 @@ export class InteractionsService {
     const limit = clampLimit(rawLimit, 20, 50);
     const c = decodeCursor(cursor);
     const rows = await this.db.query(
-      `select c.id, c.parent_id, c.body, c.created_at, u.id as user_id, u.username, u.display_name, u.avatar_url
+      `select c.id, c.parent_id, c.body, c.created_at, c.kind, u.id as user_id, u.username, u.display_name, u.avatar_url,
+              g.slug as g_slug, g.name as g_name, g.tier as g_tier, s.qty as g_qty, s.coins as g_coins, s.message as g_message
          from comments c join users u on u.id = c.user_id
+         left join gift_sends s on s.id = c.gift_send_id left join gifts g on g.slug = s.gift_slug
         where c.post_id = $1 and c.deleted_at is null
           ${onlyId ? 'and c.id = $2' : c ? 'and (c.created_at, c.id) > ($2::timestamptz, $3::uuid)' : ''}
         order by c.created_at asc, c.id asc limit ${limit + 1}`,
@@ -108,7 +110,8 @@ export class InteractionsService {
     const page = rows.slice(0, limit);
     return {
       items: page.map((r) => ({
-        id: r.id, parentId: r.parent_id, body: r.body, createdAt: r.created_at,
+        id: r.id, parentId: r.parent_id, body: r.body, createdAt: r.created_at, kind: r.kind,
+        gift: r.kind === 'gift' && r.g_slug ? { slug: r.g_slug, name: r.g_name, tier: r.g_tier, qty: r.g_qty, coins: r.g_coins, message: r.g_message } : null,
         author: { id: r.user_id, username: r.username, displayName: r.display_name, avatarUrl: r.avatar_url },
       })),
       nextCursor: rows.length > limit ? encodeCursor(page[page.length - 1].created_at, page[page.length - 1].id) : null,
@@ -117,8 +120,9 @@ export class InteractionsService {
 
   async deleteComment(userId: string, commentId: string) {
     const c = await this.db.one(
-      `select c.id, c.post_id, c.user_id, p.author_id from comments c join posts p on p.id = c.post_id where c.id = $1 and c.deleted_at is null`, [commentId]);
+      `select c.id, c.post_id, c.user_id, c.kind, p.author_id from comments c join posts p on p.id = c.post_id where c.id = $1 and c.deleted_at is null`, [commentId]);
     if (!c) throw new NotFoundException('Comment not found');
+    if (c.kind === 'gift') throw new ForbiddenException('Gifts cannot be deleted');
     if (c.user_id !== userId && c.author_id !== userId) throw new ForbiddenException();
     await this.db.tx(async (tx) => {
       // Replies go with their parent, so count everything that disappears.

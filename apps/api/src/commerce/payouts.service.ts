@@ -23,7 +23,7 @@ export class PayoutsService {
               coalesce(sum(amount_minor) filter (where available_at <= now()), 0)::int8 as available,
               coalesce(sum(amount_minor) filter (where available_at > now()), 0)::int8 as pending
          from merchant_ledger where merchant_id = $1 group by currency order by currency`, [merchantId]);
-    const m = await this.db.one<any>(`select payout_details from merchants where user_id = $1`, [merchantId]);
+    const m = await this.db.one<any>(`select payout_details from users where id = $1`, [merchantId]);
     return {
       payoutDetails: m?.payout_details ?? null,
       balances: rows.map((r) => ({
@@ -49,14 +49,16 @@ export class PayoutsService {
   }
 
   async setDetails(merchantId: string, details: string) {
-    await this.db.query(`update merchants set payout_details = $2 where user_id = $1`, [merchantId, details.trim() || null]);
+    await this.db.query(`update users set payout_details = $2 where id = $1`, [merchantId, details.trim() || null]);
     return { ok: true };
   }
 
   async request(merchantId: string, input: { currency: string; amountMinor?: number }) {
     const created = await this.db.tx(async (tx) => {
-      const m = (await tx.query(`select payout_details from merchants where user_id = $1 for update`, [merchantId]))[0];
-      if (!m) throw new BadRequestException('Open a shop first');
+      const m = (await tx.query(`select payout_details, email_verified_at, is_adult, banned_at from users where id = $1 and deleted_at is null for update`, [merchantId]))[0];
+      if (!m || m.banned_at) throw new BadRequestException('This account cannot take payouts');
+      if (!m.email_verified_at) throw new BadRequestException('Verify your email before taking a payout');
+      if (!m.is_adult) throw new BadRequestException('You must be 18 or over to take a payout');
       if (!m.payout_details) throw new BadRequestException('Add your bank details first');
       const [{ available }] = await tx.query(
         `select coalesce(sum(amount_minor) filter (where available_at <= now()), 0)::int8 as available from merchant_ledger where merchant_id = $1 and currency = $2`,
@@ -78,7 +80,7 @@ export class PayoutsService {
   // ---------- admin ----------
   async forAdmin(status?: string) {
     const rows = await this.db.query(
-      `select p.*, m.shop_name from payout_requests p join merchants m on m.user_id = p.merchant_id where ($1::text is null or p.status = $1) order by p.created_at desc limit 100`, [status ?? null]);
+      `select p.*, coalesce(m.shop_name, u.display_name) as shop_name from payout_requests p join users u on u.id = p.merchant_id left join merchants m on m.user_id = p.merchant_id where ($1::text is null or p.status = $1) order by p.created_at desc limit 100`, [status ?? null]);
     return { items: rows.map(shape) };
   }
 

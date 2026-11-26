@@ -4,11 +4,11 @@ import { Hub } from '../chat/hub';
 import { ENV, Env } from '../config/env';
 import { clampLimit, decodeCursor, encodeCursor } from '../common/cursor';
 
-export type NotifType = 'like' | 'comment' | 'reply' | 'follow' | 'order_paid' | 'order_update' | 'sale' | 'review' | 'refund' | 'payout' | 'system';
+export type NotifType = 'like' | 'comment' | 'reply' | 'follow' | 'order_paid' | 'order_update' | 'sale' | 'review' | 'refund' | 'payout' | 'gift' | 'system';
 type Category = 'likes' | 'comments' | 'follows' | 'messages' | 'orders';
 const CATEGORY: Record<string, Category> = {
   like: 'likes', comment: 'comments', reply: 'comments', follow: 'follows', message: 'messages',
-  order_paid: 'orders', order_update: 'orders', sale: 'orders', review: 'comments', refund: 'orders', payout: 'orders',
+  order_paid: 'orders', order_update: 'orders', sale: 'orders', review: 'comments', refund: 'orders', payout: 'orders', gift: 'comments',
 };
 
 export type NotifInput = {

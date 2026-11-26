@@ -8,6 +8,7 @@ import { MediaService } from '../media/media.service';
 import { VideoProvider } from '../media/video';
 import { FlutterwaveGateway, StripeGateway } from '../payments/gateways';
 import { OrdersService } from '../orders/orders.service';
+import { WalletService } from '../gifts/wallet.service';
 
 // Providers call these URLs, not the app. Every one proves who it is before we act on it.
 @Controller()
@@ -16,7 +17,7 @@ export class WebhooksController {
   private log = new Logger('Webhooks');
   constructor(
     private db: Db, private orders: OrdersService, private stripe: StripeGateway, private flw: FlutterwaveGateway,
-    private media: MediaService, private video: VideoProvider, @Inject(ENV) private env: Env,
+    private media: MediaService, private video: VideoProvider, @Inject(ENV) private env: Env, private wallet: WalletService,
   ) {}
 
   private async audit(provider: string, eventId: string, payload: unknown) {
@@ -37,12 +38,16 @@ export class WebhooksController {
       const s = event.data.object;
       if (s.payment_status === 'paid') {
         const order = await this.orders.byProviderRef('stripe', s.id);
-        if (!order) this.log.warn(`Stripe session ${s.id} matches no order`);
+        const coins = order ? null : await this.wallet.byProviderRef('stripe', s.id);
+        if (coins) await this.wallet.markPaid(coins.id, { totalMinor: s.amount_total ?? -1, currency: (s.currency ?? '').toUpperCase() });
+        else if (!order) this.log.warn(`Stripe session ${s.id} matches no order`);
         else await this.orders.markPaid(order.id, { totalMinor: s.amount_total ?? -1, currency: (s.currency ?? '').toUpperCase() });
       }
     } else if (event.type === 'checkout.session.expired' || event.type === 'checkout.session.async_payment_failed') {
+      const status = event.type.endsWith('expired') ? 'cancelled' : 'failed';
       const order = await this.orders.byProviderRef('stripe', event.data.object.id);
-      if (order) await this.orders.release(order.id, event.type.endsWith('expired') ? 'cancelled' : 'failed');
+      if (order) await this.orders.release(order.id, status);
+      else { const c = await this.wallet.byProviderRef('stripe', event.data.object.id); if (c) await this.wallet.release(c.id, status); }
     }
     await this.audit('stripe', event.id, event);
     return { received: true };
@@ -57,7 +62,11 @@ export class WebhooksController {
       const tx = await this.flw.verify(body.data.id);
       if (!tx) throw new ServiceUnavailableException('Could not verify the transaction yet'); // makes Flutterwave retry
       const order = await this.orders.byProviderRef('flutterwave', tx.txRef);
-      if (!order) this.log.warn(`Flutterwave tx ${tx.txRef} matches no order`);
+      const coins = order ? null : await this.wallet.byProviderRef('flutterwave', tx.txRef);
+      if (coins) {
+        if (tx.status === 'successful') await this.wallet.markPaid(coins.id, { totalMinor: Math.round(tx.amount * 100), currency: tx.currency });
+        else if (tx.status === 'failed') await this.wallet.release(coins.id, 'failed');
+      } else if (!order) this.log.warn(`Flutterwave tx ${tx.txRef} matches no order`);
       else if (tx.status === 'successful') await this.orders.markPaid(order.id, { totalMinor: Math.round(tx.amount * 100), currency: tx.currency });
       else if (tx.status === 'failed') await this.orders.release(order.id, 'failed');
       await this.audit('flutterwave', `charge.completed:${body.data.id}`, body);

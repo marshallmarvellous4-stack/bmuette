@@ -4,7 +4,7 @@ import { useChatState } from './chat';
 
 export type Activity = {
   id: string;
-  type: 'like' | 'comment' | 'reply' | 'follow' | 'message' | 'order_paid' | 'order_update' | 'sale' | 'review' | 'refund' | 'payout' | 'system';
+  type: 'like' | 'comment' | 'reply' | 'follow' | 'message' | 'order_paid' | 'order_update' | 'sale' | 'review' | 'refund' | 'payout' | 'gift' | 'system';
   title: string; body: string | null; read: boolean; createdAt: string;
   postId: string | null; commentId: string | null; conversationId: string | null; orderId: string | null; thumbUrl: string | null;
   actor: { id: string; username: string; displayName: string; avatarUrl: string | null } | null;

@@ -41,6 +41,8 @@ const schema = z.object({
 
   // Email (verification codes, password reset). "log" only records emails in the database (development).
   EMAIL_DRIVER: z.enum(['log', 'resend']).default('log'),
+  CREATOR_COIN_MINOR: z.coerce.number().int().min(0).max(100000).default(900),
+  GIFT_HOLD_DAYS: z.coerce.number().int().min(0).max(60).default(14),
   PAYOUT_HOLD_DAYS: z.coerce.number().int().min(0).max(60).default(7),
   RETURN_WINDOW_DAYS: z.coerce.number().int().min(0).max(90).default(14),
   PUSH_DRIVER: z.enum(['log', 'expo']).default('log'),

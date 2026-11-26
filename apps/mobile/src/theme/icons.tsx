@@ -7,7 +7,7 @@ export type IconName =
   | 'close' | 'back' | 'check' | 'camera' | 'video' | 'image' | 'tag' | 'send' | 'volumeOff' | 'volumeOn' | 'minimize' | 'expand'
   | 'pause' | 'newChat' | 'more' | 'settings' | 'flag' | 'bell' | 'trash' | 'chevron' | 'lock' | 'block' | 'mic' | 'music'
   | 'cart' | 'scissors' | 'text' | 'filter' | 'star' | 'box' | 'trending' | 'eye' | 'refresh' | 'wallet' | 'truck' | 'mail'
-  | 'folder' | 'grid' | 'hash' | 'user';
+  | 'folder' | 'grid' | 'hash' | 'user' | 'gift' | 'coin';
 
 type Def = { d: string[]; fillable?: boolean; extraCircle?: { cx: number; cy: number; r: number }; filledDetail?: string[] };
 
@@ -62,6 +62,8 @@ const ICONS: Record<IconName, Def> = {
   grid: { d: ['M4 4h6.5v6.5H4Z', 'M13.5 4H20v6.5h-6.5Z', 'M4 13.5h6.5V20H4Z', 'M13.5 13.5H20V20h-6.5Z'], fillable: true },
   folder: { d: ['M3.5 6.5A1.5 1.5 0 0 1 5 5h4l2 2.5h8A1.5 1.5 0 0 1 20.5 9v8.5A1.5 1.5 0 0 1 19 19H5a1.5 1.5 0 0 1-1.5-1.5Z'], fillable: true },
   user: { d: ['M5 20c.4-3.4 3.2-5.6 7-5.6s6.6 2.2 7 5.6'], extraCircle: { cx: 12, cy: 8.4, r: 3.6 } },
+  gift: { d: ['M4.5 10h15v3h-15Z', 'M5.5 13h13v7h-13Z', 'M12 10v10', 'M12 10C9.4 10 7.4 8.8 7.4 7.1A2.1 2.1 0 0 1 9.5 5c1.5 0 2.5 2.2 2.5 5Z', 'M12 10c2.6 0 4.6-1.2 4.6-2.9A2.1 2.1 0 0 0 14.5 5C13 5 12 7.2 12 10Z'], fillable: true },
+  coin: { d: ['M12 7.2v9.6', 'M14.6 9.4c-.5-.8-1.4-1.2-2.6-1.2-1.6 0-2.6.7-2.6 1.8 0 2.5 5.4 1.2 5.4 3.8 0 1.1-1.1 1.8-2.8 1.8-1.3 0-2.3-.5-2.8-1.4'], extraCircle: { cx: 12, cy: 12, r: 8.4 } },
   hash: { d: ['M9 4 7 20', 'M17 4l-2 16', 'M4.5 9h16', 'M3.5 15h16'] },
   volumeOn: { d: ['M4 9.5h3.2L12 5.5v13l-4.8-4H4Z', 'M15.5 9a4 4 0 0 1 0 6', 'M18 6.6a7.4 7.4 0 0 1 0 10.8'] },
 };

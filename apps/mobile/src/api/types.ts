@@ -9,7 +9,7 @@ export type Cta = { kind: CtaKind; productId?: string; label?: string };
 
 export type Post = {
   id: string; kind: 'video' | 'photo'; caption: string; tags: string[]; cta: Cta | null; allowDownload: boolean; status: string; createdAt: string;
-  counts: { likes: number; comments: number; saves: number; shares: number; views: number };
+  counts: { likes: number; comments: number; saves: number; shares: number; views: number; giftCoins?: number };
   author: { id: string; username: string; displayName: string; avatarUrl: string | null; isMerchant: boolean };
   media: Media[];
   viewer: { liked: boolean; saved: boolean; following: boolean };
@@ -38,6 +38,7 @@ export type Product = {
   variants?: Variant[]; rating?: Rating;
 };
 
-export type Comment = { id: string; parentId: string | null; body: string; createdAt: string; author: { id: string; username: string; displayName: string; avatarUrl: string | null } };
+export type GiftInfo = { slug: string; name: string; tier: number; qty: number; coins: number; message: string | null };
+export type Comment = { id: string; parentId: string | null; body: string; createdAt: string; kind?: 'text' | 'gift'; gift?: GiftInfo | null; author: { id: string; username: string; displayName: string; avatarUrl: string | null } };
 export type Page<T> = { items: T[]; nextCursor?: string | null };
 export type CheckoutResult = { order: { id: string; status: string }; checkout: { provider: string; url: string } };

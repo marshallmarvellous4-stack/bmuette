@@ -17,7 +17,7 @@ const CTA_PRODUCT_KINDS: Record<string, string[]> = {
 export const toPost = (r: any) => ({
   id: r.id, kind: r.kind, caption: r.caption, tags: r.tags, cta: r.cta, allowDownload: r.allow_download, status: r.status,
   createdAt: r.created_at,
-  counts: { likes: r.like_count, comments: r.comment_count, saves: r.save_count, shares: r.share_count, views: r.view_count },
+  counts: { likes: r.like_count, comments: r.comment_count, saves: r.save_count, shares: r.share_count, views: r.view_count, giftCoins: r.gift_coins ?? 0 },
   author: { id: r.author_id, username: r.username, displayName: r.display_name, avatarUrl: r.avatar_url, isMerchant: r.is_merchant },
   media: r.media,
   sound: r.sound ?? null, products: r.products ?? [], soundVolume: r.sound_volume, originalVolume: r.original_volume, edit: r.edit ?? null,

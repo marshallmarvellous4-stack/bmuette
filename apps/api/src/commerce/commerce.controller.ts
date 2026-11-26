@@ -100,7 +100,10 @@ export class CommerceController {
     const sales = await this.db.query(`select currency, count(*)::int as orders, sum(total_minor)::bigint as gross, sum(fee_minor)::bigint as fees, sum(discount_minor)::bigint as discounts from orders where status = 'paid' group by currency`);
     const owed = await this.db.query(`select currency, sum(amount_minor)::bigint as owed from merchant_ledger group by currency`);
     const open = await this.db.one<any>(`select (select count(*) from refund_requests where status in ('requested','approved'))::int as refunds, (select count(*) from payout_requests where status = 'requested')::int as payouts`);
+    const gifts = await this.db.one<any>(`select (select coalesce(sum(coins),0) from coin_purchases where status = 'paid')::int as sold, (select coalesce(sum(coins),0) from gift_sends)::int as spent, (select coalesce(sum(earned_minor),0) from gift_sends)::int8 as earned`);
+    const coinSales = await this.db.query(`select currency, sum(amount_minor)::bigint as paid from coin_purchases where status = 'paid' group by currency`);
     return {
+      gifts: { coinsSold: gifts?.sold ?? 0, coinsSpent: gifts?.spent ?? 0, creatorEarnedNgnMinor: Number(gifts?.earned ?? 0), coinRevenue: coinSales.map((c) => ({ currency: c.currency, paidMinor: Number(c.paid) })) },
       currencies: sales.map((s) => ({ currency: s.currency, orders: s.orders, grossMinor: Number(s.gross), feesMinor: Number(s.fees), discountsMinor: Number(s.discounts), owedToShopsMinor: Number(owed.find((o) => o.currency === s.currency)?.owed ?? 0) })),
       openRefunds: open?.refunds ?? 0, openPayouts: open?.payouts ?? 0,
     };

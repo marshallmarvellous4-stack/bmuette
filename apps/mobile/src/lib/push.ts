@@ -21,6 +21,7 @@ export function routeFor(d: { type?: string; title?: string | null; postId?: str
   if (d.type === 'refund' && d.title?.startsWith('Return requested')) return '/shop-admin?tab=returns';
   if (d.type === 'payout') return '/shop-admin?tab=money';
   if (d.type === 'review') return '/shop-admin?tab=reviews';
+  if (d.type === 'gift' && d.postId) return `/comments/${d.postId}`;
   if (d.orderId) return `/orders/${d.orderId}`;
   if (d.postId) return `/post/${d.postId}`;
   if (d.type === 'follow' && d.username) return `/profile/${d.username}`;

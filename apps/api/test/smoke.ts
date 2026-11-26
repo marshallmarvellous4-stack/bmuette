@@ -859,6 +859,50 @@ async function main() {
     ok((await call('PUT', `/posts/${vpost.json.id}/products`, { token: ta, body: { products: [] } })).status === 404, "cannot change tags on someone else's post");
     ok((await call('GET', `/posts/${vpost.json.id}`)).json.products.length === 2, 'viewers get the tagged products to tap and buy');
 
+    section('Virtual gifts');
+    const cat = await call('GET', '/gifts', { token: tb });
+    ok(cat.status === 200 && cat.json.items.length === 8 && cat.json.items[0].slug === 'spark' && cat.json.items[7].tier === 4, 'the gift catalog has eight gifts in four tiers');
+    const w0 = await call('GET', '/wallet', { token: tb });
+    ok(w0.json.coins === 0 && w0.json.packs.length === 4, 'a new wallet is empty and lists the coin packs');
+    ok(JSON.stringify((await call('POST', `/posts/${vpost.json.id}/gifts`, { token: tb, body: { gift: 'rose', qty: 1 } })).json).includes('INSUFFICIENT_COINS'), 'you cannot gift without coins');
+    ok((await call('POST', `/posts/${vpost.json.id}/gifts`, { token: td, body: { gift: 'rose', qty: 1 } })).status === 400, 'you cannot gift your own post');
+    ok((await call('POST', '/wallet/purchases', { token: tb, body: { packId: 'nope', currency: 'NGN' } })).status === 400, 'an unknown pack is refused');
+    const buyCoins = await call('POST', '/wallet/purchases', { token: tb, body: { packId: 'coins_100', currency: 'NGN' } });
+    ok(buyCoins.status === 201 && buyCoins.json.checkout.url && buyCoins.json.coins === 100, 'start buying a coin pack');
+    ok((await call('GET', `/wallet/purchases/${buyCoins.json.purchaseId}`, { token: tb })).json.status === 'pending', 'it is pending until the provider confirms');
+    ok((await call('GET', `/wallet/purchases/${buyCoins.json.purchaseId}`, { token: tc })).status === 404, "others cannot see someone's purchase");
+    await payNgn(buyCoins.json.purchaseId, 7101, 150000);
+    await payNgn(buyCoins.json.purchaseId, 7101, 150000);
+    ok((await call('GET', '/wallet', { token: tb })).json.coins === 100, 'paying adds the coins, once, even if the webhook repeats');
+    const wrongBuy = await call('POST', '/wallet/purchases', { token: tb, body: { packId: 'coins_500', currency: 'NGN' } });
+    const wrongHook = await payNgn(wrongBuy.json.purchaseId, 7102, 100);
+    ok(wrongHook.status === 400 && (await call('GET', '/wallet', { token: tb })).json.coins === 100, 'a payment for the wrongBuy amount adds nothing');
+
+    const commentsBefore = (await call('GET', `/posts/${vpost.json.id}`)).json.counts.comments;
+    const sent = await call('POST', `/posts/${vpost.json.id}/gifts`, { token: tb, body: { gift: 'rose', qty: 3, message: 'Love this drop' } });
+    ok(sent.status === 201 && sent.json.coins === 85 && sent.json.comment.kind === 'gift' && sent.json.comment.gift.slug === 'rose' && sent.json.comment.gift.qty === 3, 'a gift lands in the comments and takes the coins');
+    const cl = (await call('GET', `/posts/${vpost.json.id}/comments`)).json.items;
+    ok(cl.some((c: any) => c.kind === 'gift' && c.gift.tier === 1 && c.body === 'Love this drop'), 'gift comments are listed with their gift');
+    const pAfter = (await call('GET', `/posts/${vpost.json.id}`)).json;
+    ok(pAfter.counts.comments === commentsBefore + 1 && pAfter.counts.giftCoins === 15, 'the post counts the comment and the coins');
+    ok((await call('POST', `/posts/${vpost.json.id}/gifts`, { token: tb, body: { gift: 'nope', qty: 1 } })).status === 400, 'an unknown gift is refused');
+    ok((await call('POST', `/posts/${vpost.json.id}/gifts`, { token: tb, body: { gift: 'rose', qty: 100 } })).status === 400, 'at most 99 at once');
+    ok(JSON.stringify((await call('POST', `/posts/${vpost.json.id}/gifts`, { token: tb, body: { gift: 'orbit', qty: 1 } })).json).includes('INSUFFICIENT_COINS') && (await call('GET', '/wallet', { token: tb })).json.coins === 85, 'a failed gift takes nothing');
+    ok((await call('DELETE', `/comments/${sent.json.comment.id}`, { token: tb })).status === 403, 'gifts cannot be deleted');
+    ok((await call('GET', '/notifications', { token: td })).json.items.some((n: any) => n.type === 'gift' && n.title.includes('3 × Rose')), 'the creator is told');
+    const gp = (await call('GET', `/posts/${vpost.json.id}/gifts`, { token: tb })).json;
+    ok(gp.totalCoins === 15 && gp.top[0].username === 'bola' && gp.top[0].coins === 15, 'top gifters are ranked');
+    const earn = (await call('GET', '/me/earnings', { token: td })).json;
+    ok(earn.coinsReceived === 15 && earn.earnedMinor === 13500 && earn.recent[0].gift === 'rose', 'the creator sees what they earned (N9 a coin)');
+    const dbal = (await call('GET', '/merchant/balance', { token: td })).json.balances[0];
+    ok(dbal.pendingMinor === 13500, 'gift earnings are held before they can be paid out');
+    ok((await call('GET', '/wallet/history', { token: tb })).json.items.map((i: any) => i.kind).join() === 'gift,purchase', 'the wallet explains every change');
+    const adminMoney = (await call('GET', '/admin/api/commerce', { token: ta })).json;
+    ok(adminMoney.gifts.coinsSold === 100 && adminMoney.gifts.coinsSpent === 15, 'admin sees coins sold and spent');
+    // someone who is not a shop can earn and be paid
+    const bpost = await call('POST', '/posts', { token: tb, body: { kind: 'photo', caption: 'My fit', mediaIds: [(await upload(tb, 'image', 'fit')).id] } });
+    ok(bpost.status === 201, 'a normal creator posts');
+
     section('Account deletion');
     await pool.query(`update order_items set fulfilment = 'delivered'`); // nothing left to ship
     ok((await call('POST', '/me/delete', { token: tc, body: { password: 'wrong password' } })).status === 401, 'deleting needs the right password');

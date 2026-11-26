@@ -8,6 +8,8 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { MenuHost, ReportHost, SaveHost } from '@/components/Hosts';
+import { CoinsSheet, GiftTray } from '@/components/gifts/GiftTray';
+import { GiftBurstHost } from '@/components/gifts/GiftBurst';
 import { MiniPlayer } from '@/components/MiniPlayer';
 import { LoadingMark } from '@/components/Illustrations';
 import { useAuth } from '@/state/auth';
@@ -72,6 +74,8 @@ export default function RootLayout() {
             <Stack.Screen name="orders/index" />
             <Stack.Screen name="orders/[id]" />
             <Stack.Screen name="shop-admin" />
+            <Stack.Screen name="wallet" />
+            <Stack.Screen name="earnings" />
             <Stack.Screen name="profile/[username]" />
             <Stack.Screen name="post/[id]" />
             <Stack.Screen name="chat/[id]" />
@@ -90,6 +94,9 @@ export default function RootLayout() {
           <MenuHost />
           <ReportHost />
           <SaveHost />
+          <GiftTray />
+          <CoinsSheet />
+          <GiftBurstHost />
         </QueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

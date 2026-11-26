@@ -42,6 +42,8 @@ export class UsersService {
     const open = await this.db.one(
       `select count(*)::int as n from order_items i join orders o on o.id = i.order_id
         where i.merchant_id = $1 and o.status = 'paid' and i.fulfilment in ('pending','shipped')`, [userId]);
+    const owed = await this.db.one<{ n: string }>(`select coalesce(sum(amount_minor),0) as n from merchant_ledger where merchant_id = $1 group by currency having sum(amount_minor) > 0 limit 1`, [userId]);
+    if (owed) throw new ConflictException('You still have earnings to withdraw. Take your payout first, then delete your account.');
     if (open && open.n > 0) throw new ConflictException(`You have ${open.n} open order${open.n === 1 ? '' : 's'} to fulfil or refund first`);
     const tag = randomUUID().slice(0, 8);
     await this.db.tx(async (tx) => {
